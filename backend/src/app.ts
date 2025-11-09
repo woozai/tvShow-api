@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
-// import { logger } from "./utils/logger";
+import { logger } from "./utils/logger";
 import apiRouter from "./routes";
 import { errorHandler } from "./middlewares/errorHandler";
 
