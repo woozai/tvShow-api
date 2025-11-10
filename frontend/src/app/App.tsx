@@ -1,13 +1,13 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HomePage } from "./pages/HomePage";
 import { SearchPage } from "./pages/SearchPage";
-import { Header } from "./components/header";
+import { SearchHeader } from "./components/searchheader";
 
 export default function App() {
   return (
     <BrowserRouter>
       {/* Top navigation */}
-      <Header />
+      <SearchHeader />
 
       {/* App routes */}
       <Routes>

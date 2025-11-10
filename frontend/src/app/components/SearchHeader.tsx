@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export function Header() {
+export function SearchHeader() {
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
 
