@@ -12,19 +12,7 @@ app.use(cors());
 app.use(express.json());
 app.use(requestLogger);
 
-// app.get("/api/health", (_req, res) => res.json({ ok: true }));
-app.get(
-  "/test-validate",
-  validate(
-    z.object({
-      page: z.coerce.number().int().min(0),
-    }),
-    "query"
-  ),
-  (req, res) => {
-    res.json({ ok: true, parsed: req.query });
-  }
-);
+app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
 // app.use("/api", apiRouter);
 
