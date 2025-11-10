@@ -14,6 +14,7 @@ export function SearchPage() {
 
   useEffect(() => {
     async function load() {
+      // If the query is empty or only whitespace, do nothing
       if (!q.trim()) return;
       setLoading(true);
 
@@ -36,7 +37,7 @@ export function SearchPage() {
         Search Results for: <span className="text-red-500">{q}</span>
       </h2>
 
-      {/* ✅ No results */}
+      {/* No results */}
       {results.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <p className="text-gray-400 text-lg mb-2">
@@ -46,7 +47,7 @@ export function SearchPage() {
         </div>
       )}
 
-      {/* ✅ Results */}
+      {/* Results */}
       {results.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
           {results.map((item: SearchResult) => (
