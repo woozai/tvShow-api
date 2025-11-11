@@ -1,11 +1,11 @@
 import { TVMazeShow } from "../types/api";
 import { FilterParams } from "../types/filters";
 
-export function applyFilters(
-  items: TVMazeShow[],
+export function applyShowsFilters(
+  shows: TVMazeShow[],
   p: FilterParams
 ): TVMazeShow[] {
-  let out = items;
+  let out = shows;
 
   // Filter by gnres
 
@@ -47,15 +47,15 @@ export function applyFilters(
 }
 
 // Sort
-export function applySort(
-  items: TVMazeShow[],
+export function applyShowsSort(
+  shows: TVMazeShow[],
   sort?: FilterParams["sort"],
   order: "asc" | "desc" = "desc"
 ) {
-  if (!sort) return items;
+  if (!sort) return shows;
   const dir = order === "asc" ? 1 : -1;
 
-  const cloned = [...items];
+  const cloned = [...shows];
   cloned.sort((a, b) => {
     let av = 0 as number | string;
     let bv = 0 as number | string;
@@ -81,7 +81,7 @@ export function applySort(
   return cloned;
 }
 
-export function applyLimit<T>(items: T[], limit?: number) {
-  if (!limit || limit <= 0) return items;
-  return items.slice(0, limit);
+export function applyShowsLimit<T>(shows: T[], limit?: number) {
+  if (!limit || limit <= 0) return shows;
+  return shows.slice(0, limit);
 }

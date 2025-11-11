@@ -1,6 +1,10 @@
 import { TVMazeShow } from "../types/api";
 import { FilterParams } from "../types/filters";
-import { applyFilters, applyLimit, applySort } from "../utils/filters";
+import {
+  applyShowsFilters,
+  applyShowsLimit,
+  applyShowsSort,
+} from "../utils/filters";
 import { httpGet } from "../utils/httpClient";
 import { searchShows } from "./search.service";
 
@@ -35,7 +39,7 @@ export async function getFilteredShows(p: FilterParams): Promise<TVMazeShow[]> {
     candidates = await getShows(page);
   }
 
-  const filtered = applyFilters(candidates, p);
-  const sorted = applySort(filtered, p.sort, p.order ?? "desc");
-  return applyLimit(sorted, p.limit ?? undefined);
+  const filtered = applyShowsFilters(candidates, p);
+  const sorted = applyShowsSort(filtered, p.sort, p.order ?? "desc");
+  return applyShowsLimit(sorted, p.limit ?? undefined);
 }

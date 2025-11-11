@@ -13,7 +13,7 @@ export function HomePage() {
       try {
         const data = await getPopularShows();
         console.log(data);
-        setShows(data);
+        setShows(data.items);
       } finally {
         setLoading(false);
       }
