@@ -6,6 +6,7 @@ import { getPopularShows } from "../../api/shows";
 
 export function HomePage() {
   const [shows, setShows] = useState<Show[]>([]);
+  // const [showsCount, setShowsCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -14,6 +15,7 @@ export function HomePage() {
         const data = await getPopularShows();
         console.log(data);
         setShows(data.items);
+        // setShowsCount(data.count);
       } finally {
         setLoading(false);
       }
