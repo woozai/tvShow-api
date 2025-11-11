@@ -13,7 +13,6 @@ export function HomePage() {
     async function load() {
       try {
         const data = await getPopularShows();
-        console.log(data);
         setShows(data.items);
         // setShowsCount(data.count);
       } finally {

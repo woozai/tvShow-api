@@ -2,6 +2,9 @@ import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { HomeButton } from "./HomeButton";
 import { useDebouncedValue } from "../../hooks/useDebouncedValue";
+import type { FilterParams } from "../../types/filterParams";
+import { FilterToggle } from "./filters/FilterToggle";
+import { FilterBar } from "./filters/FilterBar";
 
 export function SearchHeader() {
   const navigate = useNavigate();
@@ -10,6 +13,13 @@ export function SearchHeader() {
 
   const [query, setQuery] = useState("");
   const dq = useDebouncedValue(query, 400);
+
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filters, setFilters] = useState<FilterParams>({
+    order: "desc",
+    sort: "rating",
+    limit: 20,
+  });
 
   // Sync input with the URL (single source of truth)
   useEffect(() => {
@@ -45,17 +55,37 @@ export function SearchHeader() {
   }
 
   return (
-    <header className="flex items-center gap-6 px-6 py-4 sticky top-0 z-40 backdrop-blur">
-      <HomeButton />
+    <>
+      <header className="flex items-center gap-4 px-6 py-4 sticky top-0 z-40 backdrop-blur">
+        <HomeButton />
 
-      <form onSubmit={handleSubmit} className="flex-1">
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="w-full bg-[#1a1e24] text-white p-3 rounded-lg outline-none focus:ring-2 focus:ring-red-500"
-          placeholder="Search TV Shows..."
+        <form onSubmit={handleSubmit} className="flex-1">
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="w-full bg-[#1a1e24] text-white p-3 rounded-lg outline-none focus:ring-2 focus:ring-red-500"
+            placeholder="Search TV Shows..."
+          />
+        </form>
+
+        {/* Filter toggle button (on the right side of search bar) */}
+        <FilterToggle
+          isOpen={filtersOpen}
+          onToggle={() => setFiltersOpen((v) => !v)}
         />
-      </form>
-    </header>
+      </header>
+
+      {/* Filter bar (below header, expands/collapses) */}
+      <div className="px-6">
+        <FilterBar
+          isOpen={filtersOpen}
+          params={filters}
+          onParamsChange={setFilters}
+          onReset={() =>
+            setFilters({ order: "desc", sort: "rating", limit: 20 })
+          }
+        />
+      </div>
+    </>
   );
 }
