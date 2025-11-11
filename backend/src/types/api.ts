@@ -6,6 +6,7 @@ export type TVMazeSearchResult = {
 };
 
 export type TVMazeShow = {
+  language: string;
   id: number;
   name: string;
   summary?: string | null;
