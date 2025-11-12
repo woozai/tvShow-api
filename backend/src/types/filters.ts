@@ -2,7 +2,7 @@ export type SortKey = "rating" | "name" | "premiered";
 
 export interface FilterParams {
   q?: string;
-  genre?: string;
+  genres?: string[];
   language?: string;
   rating_gte?: number;
   year_min?: number;
@@ -12,4 +12,5 @@ export interface FilterParams {
   order?: "asc" | "desc";
   page?: number;
   limit?: number;
+  _links?: Record<string, unknown>;
 }

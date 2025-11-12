@@ -8,14 +8,13 @@ export function applyShowsFilters(
   let out = shows;
 
   // Filter by gnres
-
-  if (p.genre) {
-    const g = p.genre.toLowerCase();
-    out = out.filter((s) =>
-      (s.genres || []).some((x) => x.toLowerCase() === g)
-    );
+  if (p.genres?.length) {
+    const wanted = p.genres.map((g) => g.toLowerCase());
+    out = out.filter((s) => {
+      const sg = (s.genres || []).map((x) => x.toLowerCase());
+      return wanted.every((w) => sg.includes(w));
+    });
   }
-
   // Filter by rating, above chosen rating
   if (typeof p.rating_gte === "number") {
     out = out.filter((s) => (s.rating?.average ?? 0) >= p.rating_gte!);

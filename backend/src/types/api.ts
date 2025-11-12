@@ -1,7 +1,6 @@
 // Minimal TVMaze response types (expand later if needed)
 
 export type TVMazeSearchResult = {
-  score: number;
   show: TVMazeShow;
 };
 
@@ -16,6 +15,8 @@ export type TVMazeShow = {
   rating?: { average?: number | null };
   image?: { medium?: string; original?: string } | null;
   _links?: Record<string, unknown>;
+  page?: number;
+  limit?: number;
 };
 
 export type TVMazeEpisode = {
@@ -29,4 +30,7 @@ export type TVMazeEpisode = {
   runtime?: number | null;
   summary?: string | null;
   image?: { medium?: string; original?: string } | null;
+  _links?: Record<string, unknown>;
+  page?: number;
+  limit?: number;
 };

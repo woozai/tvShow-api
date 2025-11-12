@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import * as showService from "../services/show.service";
 import { FilterParams, SortKey } from "../types/filters";
 import { getFilteredShows } from "../services/show.service";
+import { qs, qn, qenum, qorder } from "../utils/queryParsers";
 
 export async function listShows(
   req: Request,
@@ -15,8 +16,8 @@ export async function listShows(
         .status(400)
         .json({ error: "'page' must be a non-negative number" });
 
-    const data = await showService.getShows(page);
-    res.json(data);
+    const shows = await showService.getShows(page);
+    res.json({ count: shows.length, items: shows });
   } catch (err) {
     next(err);
   }
@@ -52,27 +53,6 @@ export async function listEpisodesForShow(
   }
 }
 
-// ---- helpers: parse query types safely ----
-function qs(v: unknown): string | undefined {
-  return typeof v === "string" ? v : undefined;
-}
-function qn(v: unknown): number | undefined {
-  if (typeof v !== "string") return undefined;
-  const n = Number(v);
-  return Number.isFinite(n) ? n : undefined;
-}
-function qenum<T extends string>(
-  v: unknown,
-  allowed: readonly T[]
-): T | undefined {
-  const s = qs(v);
-  return s && (allowed as readonly string[]).includes(s) ? (s as T) : undefined;
-}
-function qorder(v: unknown): "asc" | "desc" | undefined {
-  const s = qs(v)?.toLowerCase();
-  return s === "asc" || s === "desc" ? s : undefined;
-}
-
 export async function listShowsWithFilters(
   req: Request,
   res: Response,
@@ -80,9 +60,16 @@ export async function listShowsWithFilters(
 ) {
   try {
     // parse raw values
+    const genresRaw = req.query.genres;
+    const genresArr =
+      typeof genresRaw === "string"
+        ? genresRaw
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : [];
     const q = qs(req.query.q);
     const language = qs(req.query.language);
-    const genre = qs(req.query.genre);
     const ratingGte = qn(req.query.rating_gte);
     const yearMin = qn(req.query.year_min);
     const yearMax = qn(req.query.year_max);
@@ -99,7 +86,7 @@ export async function listShowsWithFilters(
     // build params without ever assigning `undefined`
     const p: FilterParams = { order }; // safe to always set
     if (q) p.q = q;
-    if (genre) p.genre = genre;
+    if (genresArr.length) p.genres = genresArr;
     if (typeof ratingGte === "number") p.rating_gte = ratingGte;
     if (typeof yearMin === "number") p.year_min = yearMin;
     if (typeof yearMax === "number") p.year_max = yearMax;

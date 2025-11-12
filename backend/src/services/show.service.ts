@@ -32,8 +32,8 @@ export async function getFilteredShows(p: FilterParams): Promise<TVMazeShow[]> {
   let candidates: TVMazeShow[];
   if (p.q && p.q.trim()) {
     const searchResults = await searchShows(p.q.trim());
-    // TVMaze search returns [{ score, show }], map to shows
-    candidates = searchResults.map((r) => r.show);
+    // TVMaze search returns [{ show }], map to shows
+    candidates = searchResults.map(({ show }) => show);
   } else {
     const page = Number.isFinite(p.page) ? (p.page as number) : 0;
     candidates = await getShows(page);
