@@ -1,5 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import * as showService from "../services/show.service";
+import { FilterParams, SortKey } from "../types/filters";
+import { getFilteredShows } from "../services/show.service";
+import { qs, qn, qenum, qorder } from "../utils/queryParsers";
 
 export async function listShows(
   req: Request,
@@ -13,8 +16,8 @@ export async function listShows(
         .status(400)
         .json({ error: "'page' must be a non-negative number" });
 
-    const data = await showService.getShows(page);
-    res.json(data);
+    const shows = await showService.getShows(page);
+    res.json({ count: shows.length, items: shows });
   } catch (err) {
     next(err);
   }
@@ -45,6 +48,56 @@ export async function listEpisodesForShow(
 
     const data = await showService.getEpisodesByShowId(id);
     res.json(data);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function listShowsWithFilters(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    // parse raw values
+    const genresRaw = req.query.genres;
+    const genresArr =
+      typeof genresRaw === "string"
+        ? genresRaw
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : [];
+    const q = qs(req.query.q);
+    const language = qs(req.query.language);
+    const ratingGte = qn(req.query.rating_gte);
+    const yearMin = qn(req.query.year_min);
+    const yearMax = qn(req.query.year_max);
+    const status = qs(req.query.status);
+    const sort = qenum<SortKey>(req.query.sort, [
+      "rating",
+      "name",
+      "premiered",
+    ] as const);
+    const order = qorder(req.query.order) ?? "desc";
+    const page = qn(req.query.page);
+    const limit = qn(req.query.limit);
+
+    // build params without ever assigning `undefined`
+    const p: FilterParams = { order }; // safe to always set
+    if (q) p.q = q;
+    if (genresArr.length) p.genres = genresArr;
+    if (typeof ratingGte === "number") p.rating_gte = ratingGte;
+    if (typeof yearMin === "number") p.year_min = yearMin;
+    if (typeof yearMax === "number") p.year_max = yearMax;
+    if (status) p.status = status;
+    if (sort) p.sort = sort;
+    if (typeof page === "number") p.page = page;
+    if (typeof limit === "number") p.limit = limit;
+    if (language) p.language = language;
+
+    const items = await getFilteredShows(p);
+    res.json({ count: items.length, items });
   } catch (err) {
     next(err);
   }

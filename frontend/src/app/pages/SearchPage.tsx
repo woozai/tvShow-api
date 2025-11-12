@@ -20,7 +20,6 @@ export function SearchPage() {
 
       const data = await searchShows(q);
       setResults(data);
-
       setLoading(false);
     }
 
