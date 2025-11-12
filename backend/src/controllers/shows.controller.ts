@@ -17,7 +17,11 @@ export async function listShows(
         .json({ error: "'page' must be a non-negative number" });
 
     const shows = await showService.getShows(page);
-    res.json({ count: shows.length, items: shows });
+    res.json({
+      page,
+      count: shows.length,
+      items: shows,
+    });
   } catch (err) {
     next(err);
   }
