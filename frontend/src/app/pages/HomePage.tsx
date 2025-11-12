@@ -3,10 +3,10 @@ import { ShowCard } from "../components/ShowCard/ShowCard";
 import type { Show } from "../../types/show";
 import { getPopularShows } from "../../api/shows";
 import { FilterButton } from "../components/filters/FilterButton";
-import { FilterModal } from "../components/filters/FilterModal";
 import type { FilterParams } from "../../types/filterParams";
 import { getFilteredShows } from "../../api/filtered";
 import { ShowCardPlaceholder } from "../components/ShowCard/ShowCardPlaceHolder";
+import { FilterModal } from "../components/filters/FilterModal";
 
 export function HomePage() {
   const [shows, setShows] = useState<Show[]>([]);
@@ -35,10 +35,7 @@ export function HomePage() {
   const hasSavedFilters = Boolean(
     (params.genres && params.genres.length) ||
       params.language ||
-      params.rating_gte ||
-      params.year_min ||
-      params.year_max ||
-      params.status
+      params.rating_gte
   );
 
   // Load initial popular shows
@@ -53,25 +50,32 @@ export function HomePage() {
     })();
   }, []);
 
-  async function applyFilters(next: { genres: string[]; language?: string }) {
+  async function applyFilters(next: {
+    genres: string[];
+    language?: string;
+    rating_gte?: number;
+  }) {
     setLoading(true);
     try {
-      const noFiltersChosen =
-        (!next.genres || next.genres.length === 0) && !next.language;
+      const hasGenres = Array.isArray(next.genres) && next.genres.length > 0;
+      const hasLanguage = !!next.language;
+      const hasRating_gte = !!next.rating_gte;
+
+      const noFiltersChosen = !hasGenres && !hasLanguage && !hasRating_gte;
 
       if (noFiltersChosen) {
-        // ✅ No filters selected → deactivate toggle + show popular
         setFiltersEnabled(false);
         setParams({});
         const data = await getPopularShows();
         setShows(data.items);
       } else {
-        // ✅ Filters chosen → save + enable + apply
         const newParams: FilterParams = {
           ...params,
-          genres: next.genres?.length ? next.genres : undefined,
+          genres: hasGenres ? next.genres : undefined,
           language: next.language || undefined,
+          rating_gte: hasRating_gte ? next.rating_gte : undefined,
         };
+
         setParams(newParams);
         setFiltersEnabled(true);
 
@@ -102,7 +106,7 @@ export function HomePage() {
     }
 
     setFiltersEnabled(true);
-    if (params.genres?.length || params.language) {
+    if (params.genres?.length || params.language || params.rating_gte) {
       setLoading(true);
       try {
         const res = await getFilteredShows(params);
@@ -154,6 +158,7 @@ export function HomePage() {
         genresOptions={genresOptions}
         languageOptions={languageOptions}
         initialGenres={params.genres ?? []}
+        initialRating={params.rating_gte}
         initialLanguage={params.language}
         onReset={resetFilters}
         onApply={applyFilters}

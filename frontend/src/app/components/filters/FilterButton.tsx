@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
-import { ToggleSwitch } from "./FilterToggel";
+import { ToggleSwitch } from "./FilterToggle";
 
 interface FilterButtonProps {
-  onClick?: () => void; 
-  onToggle?: () => void; 
+  onClick?: () => void;
+  onToggle?: () => void;
   children?: ReactNode;
-  active?: boolean; 
-  hasSavedFilters?: boolean; 
+  active?: boolean;
+  hasSavedFilters?: boolean;
 }
 
 export function FilterButton({
