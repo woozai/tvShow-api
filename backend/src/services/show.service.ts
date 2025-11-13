@@ -15,8 +15,21 @@ export async function getShows(page: number = 0) {
   });
 }
 
-export async function getShowById(id: number) {
-  return httpGet<any>(`/shows/${id}`, { timeoutMs: 8000 });
+export async function getShowById(
+  id: number,
+  opts?: { embed?: string | string[] }
+) {
+  const params: any = {};
+  if (opts?.embed) {
+    if (Array.isArray(opts.embed)) {
+      // Multiple → TVMaze expects repeated "embed[]" keys
+      params["embed[]"] = opts.embed;
+    } else {
+      // Single → "embed"
+      params.embed = opts.embed;
+    }
+  }
+  return httpGet<any>(`/shows/${id}`, { params, timeoutMs: 8000 });
 }
 
 export async function getEpisodesByShowId(id: number) {

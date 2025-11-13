@@ -33,7 +33,17 @@ export async function getShow(req: Request, res: Response, next: NextFunction) {
     if (Number.isNaN(id))
       return res.status(400).json({ error: "Invalid show id" });
 
-    const data = await showService.getShowById(id);
+    // Support both ?embed=episodes and ?embed[]=episodes&embed[]=cast
+    const e1 = req.query.embed;
+    const e2 = (req.query as any)["embed[]"];
+
+    let embed: string | string[] | undefined;
+    if (Array.isArray(e1)) embed = e1 as string[]; // rare with default parser
+    else if (typeof e1 === "string" && e1) embed = e1;
+    else if (Array.isArray(e2)) embed = e2 as string[];
+    else if (typeof e2 === "string" && e2) embed = [e2];
+
+    const data = await showService.getShowById(id, embed !== undefined ? { embed } : undefined);
     res.json(data);
   } catch (err) {
     next(err);
