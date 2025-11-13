@@ -39,14 +39,19 @@ export function SearchPage() {
 
       {/* Grid wrapper */}
       <div className="relative min-h-[300px]">
-        {loading && (
+        {loading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
             {Array.from({ length: 10 }).map((_, i) => (
               <ShowCardPlaceholder key={i} />
             ))}
           </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
+            {results.map((item) => (
+              <ShowCard key={item.show.id} show={item.show} />
+            ))}
+          </div>
         )}
-
         {!loading && results.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <p className="text-gray-400 text-lg mb-2">
@@ -55,14 +60,6 @@ export function SearchPage() {
             <p className="text-gray-500 text-sm">
               Try searching something else
             </p>
-          </div>
-        )}
-
-        {!loading && results.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
-            {results.map((item) => (
-              <ShowCard key={item.show.id} show={item.show} />
-            ))}
           </div>
         )}
       </div>
