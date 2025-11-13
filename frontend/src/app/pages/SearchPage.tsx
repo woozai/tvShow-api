@@ -1,29 +1,33 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import type { SearchResult } from "../../types/searchResults";
 import { searchShows } from "../../api/search";
 import { ShowCard } from "../components/ShowCard/ShowCard";
 import { ShowCardPlaceholder } from "../components/ShowCard/ShowCardPlaceHolder";
+import type { SearchResult } from "../../types/saerchResults";
 
 export function SearchPage() {
   const [params] = useSearchParams();
   const q = params.get("q") || "";
-  const [results, setResults] = useState<SearchResult[]>([]);
+  const [results, setResults] = useState<SearchResult[]>([]); // ✅ array
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     async function load() {
-      if (!q.trim()) return;
-      setLoading(true);
+      const query = q.trim();
+      if (!query) {
+        setResults([]);
+        return;
+      }
 
+      setLoading(true);
       try {
-        const data = await searchShows(q);
-        setResults(data.items);
+        const res = await searchShows(query);
+        // res: ApiListResponse<SearchResult>
+        setResults(res.items); //
       } finally {
         setLoading(false);
       }
     }
-
     load();
   }, [q]);
 
@@ -35,7 +39,6 @@ export function SearchPage() {
         </h2>
       </div>
 
-      {/* Grid wrapper */}
       <div className="flex flex-col gap-6">
         {loading ? (
           <div className="flex flex-col gap-6">
@@ -46,11 +49,12 @@ export function SearchPage() {
         ) : (
           <div className="flex flex-col gap-6">
             {results.map((item) => (
-              <ShowCard key={item.show.id} show={item.show} />
+              <ShowCard key={item.show.id} show={item.show} /> // ✅ pass the show
             ))}
           </div>
         )}
-        {!loading && results.length === 0 && (
+
+        {!loading && results.length === 0 && q.trim() && (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <p className="text-gray-400 text-lg mb-2">
               No matching TV shows found
