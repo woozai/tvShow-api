@@ -29,12 +29,12 @@ export function ShowCard({ show }: Props) {
   return (
     <div
       className="
-  card mb-3 cursor-pointer
-  rounded-lg border border-gray-700 hover:border-red-500
-  bg-[#0b0e13]
-  transition-all duration-200
-  hover:shadow-xl hover:scale-[1.01]
-"
+        card mb-3 cursor-pointer
+        rounded-lg border border-gray-700 hover:border-red-500
+        bg-[#0b0e13]
+        transition-all duration-200
+        hover:shadow-xl hover:scale-[1.01]
+      "
       onClick={handleClick}
       role="button"
       tabIndex={0}
@@ -42,20 +42,22 @@ export function ShowCard({ show }: Props) {
       onKeyDown={handleKeyDown}
     >
       <div className="flex items-start gap-3 p-3">
-        {/* Image (no cropping) */}
+        {/* Image with fixed aspect ratio (matches placeholder) */}
         <div className="w-32 sm:w-36 md:w-40 shrink-0">
-          {imageUrl ? (
-            <img
-              src={imageUrl}
-              alt={show.name}
-              className="w-full h-auto object-contain rounded-md"
-            />
-          ) : (
-            <div className="w-full h-full bg-[#1a1e24] rounded-md flex flex-col items-start justify-start text-gray-400 p-2">
-              <span className="text-4xl">📺</span>
-              <span className="text-sm">No Image Available</span>
-            </div>
-          )}
+          <div className="relative w-full aspect-[2/3]">
+            {imageUrl ? (
+              <img
+                src={imageUrl}
+                alt={show.name}
+                className="absolute inset-0 w-full h-full object-contain rounded-md"
+              />
+            ) : (
+              <div className="absolute inset-0 bg-[#1a1e24] rounded-md flex flex-col items-start justify-start text-gray-400 p-2">
+                <span className="text-4xl">📺</span>
+                <span className="text-sm">No Image Available</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Text Content */}
@@ -82,7 +84,7 @@ export function ShowCard({ show }: Props) {
 
           <div className="w-full border-t border-gray-700 my-1" />
 
-          {/* Summary: clamp by default, expand on click (NOT hover) */}
+          {/* Summary */}
           <p
             className={`
               text-sm sm:text-base text-gray-300
