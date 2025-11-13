@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import type { SearchResult } from "../../types/searchResults";
 import { searchShows } from "../../api/search";
-import { BackButton } from "../components/BackButton";
 import { ShowCard } from "../components/ShowCard/ShowCard";
 import { ShowCardPlaceholder } from "../components/ShowCard/ShowCardPlaceHolder";
 
@@ -19,7 +18,7 @@ export function SearchPage() {
 
       try {
         const data = await searchShows(q);
-        setResults(data);
+        setResults(data.items);
       } finally {
         setLoading(false);
       }

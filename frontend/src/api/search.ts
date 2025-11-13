@@ -1,6 +1,8 @@
-import type { SearchResult } from "../types/searchResults";
+import type { ApiListResponse } from "../types/api";
 import { apiGet } from "./client";
 
-export function searchShows(query: string): Promise<SearchResult[]> {
-  return apiGet<SearchResult[]>(`/api/search?q=${encodeURIComponent(query)}`);
+export function searchShows(query: string): Promise<ApiListResponse<Show>> {
+  return apiGet<ApiListResponse<Show>>(
+    `/api/search?q=${encodeURIComponent(query)}`
+  );
 }
