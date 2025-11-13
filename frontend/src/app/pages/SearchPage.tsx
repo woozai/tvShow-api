@@ -30,23 +30,22 @@ export function SearchPage() {
 
   return (
     <div className="p-6">
-      {/* Always visible */}
-      <BackButton />
-
-      <h2 className="text-xl font-semibold mb-4">
-        Search Results for: <span className="text-red-500">{q}</span>
-      </h2>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h2 className="text-2xl font-bold">
+          Search Results for: <span className="text-red-500">{q}</span>
+        </h2>
+      </div>
 
       {/* Grid wrapper */}
-      <div className="relative min-h-[300px]">
+      <div className="flex flex-col gap-6">
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
+          <div className="flex flex-col gap-6">
             {Array.from({ length: 10 }).map((_, i) => (
               <ShowCardPlaceholder key={i} />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
+          <div className="flex flex-col gap-6">
             {results.map((item) => (
               <ShowCard key={item.show.id} show={item.show} />
             ))}
