@@ -27,13 +27,47 @@ export async function listShows(
   }
 }
 
+export async function listEpisodesBySeason(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const seasonId = Number(req.params.seasonId);
+    if (!Number.isFinite(seasonId) || seasonId <= 0) {
+      return res.status(400).json({ error: "Invalid season id" });
+    }
+
+    const items = await showService.getEpisodesBySeasonId(seasonId);
+    // sort by episode number
+    items.sort((a, b) => (a.number ?? 0) - (b.number ?? 0));
+
+    res.json({ count: items.length, items });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function getShow(req: Request, res: Response, next: NextFunction) {
   try {
     const id = Number(req.params.id);
     if (Number.isNaN(id))
       return res.status(400).json({ error: "Invalid show id" });
 
-    const data = await showService.getShowById(id);
+    // Support both ?embed=episodes and ?embed[]=episodes&embed[]=cast
+    const e1 = req.query.embed;
+    const e2 = (req.query as any)["embed[]"];
+
+    let embed: string | string[] | undefined;
+    if (Array.isArray(e1)) embed = e1 as string[]; // rare with default parser
+    else if (typeof e1 === "string" && e1) embed = e1;
+    else if (Array.isArray(e2)) embed = e2 as string[];
+    else if (typeof e2 === "string" && e2) embed = [e2];
+
+    const data = await showService.getShowById(
+      id,
+      embed !== undefined ? { embed } : undefined
+    );
     res.json(data);
   } catch (err) {
     next(err);
@@ -106,3 +140,5 @@ export async function listShowsWithFilters(
     next(err);
   }
 }
+
+

@@ -1,8 +1,10 @@
 import env from "../config/env";
 
 /** Shape for query params */
-type Query = Record<string, string | number | boolean | undefined | null>;
-
+type Query = Record<
+  string,
+  string | number | boolean | string[] | undefined | null
+>;
 /** Custom typed error for HTTP failures */
 export class HttpError extends Error {
   status: number;
@@ -24,24 +26,23 @@ export class HttpError extends Error {
  * - query params (e.g. { page: 1 })
  */
 function buildUrl(path: string, params?: Query): string {
-  // ensure no double slash in base URL
   const base = env.TVMAZE_BASE_URL.endsWith("/")
     ? env.TVMAZE_BASE_URL.slice(0, -1)
     : env.TVMAZE_BASE_URL;
 
-  // ensure path always starts with "/"
   const fullUrl = path.startsWith("/") ? `${base}${path}` : `${base}/${path}`;
   const url = new URL(fullUrl);
 
-  // append query parameters
   if (params) {
     for (const [key, value] of Object.entries(params)) {
-      if (value !== undefined && value !== null) {
-        url.searchParams.set(key, String(value)); // Set the value of the query parameter in the URL, encoding objects as JSON strings.
+      if (value === undefined || value === null) continue;
+      if (Array.isArray(value)) {
+        for (const v of value) url.searchParams.append(key, String(v));
+      } else {
+        url.searchParams.set(key, String(value));
       }
     }
   }
-
   return url.toString();
 }
 

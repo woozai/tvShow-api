@@ -1,5 +1,6 @@
 import { useState, type KeyboardEvent } from "react";
 import type { Show } from "../../../types/show";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   show: Show;
@@ -7,7 +8,7 @@ interface Props {
 
 export function ShowCard({ show }: Props) {
   const [expanded, setExpanded] = useState(false);
-
+  const navigate = useNavigate();
   const imageUrl = show.image?.medium;
   const rating = show.rating?.average;
   const genres = show.genres ?? [];
@@ -16,7 +17,7 @@ export function ShowCard({ show }: Props) {
   const summaryText = rawSummary.replace(/<[^>]+>/g, "");
 
   const handleClick = () => {
-    console.log("clicked to navigate show page:", show.id);
+    navigate(`/show/${show.id}`);
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -74,7 +75,7 @@ export function ShowCard({ show }: Props) {
 
           {genres.length > 0 ? (
             <p className="text-sm sm:text-base text-gray-400 line-clamp-1">
-              {genres.join(", ")}
+              {genres.join(" · ")}
             </p>
           ) : (
             <p className="text-sm sm:text-base text-gray-500 italic">

@@ -12,7 +12,7 @@ export async function searchShows(
       return res.status(400).json({ error: "Query param 'q' is required" });
 
     const results = await searchService.searchShows(q);
-    res.json(results);
+    res.json({ count: results.length, items: results, page: 0 });
   } catch (err) {
     next(err);
   }

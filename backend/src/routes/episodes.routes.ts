@@ -1,9 +1,9 @@
-import { Router } from "express";
-import { getEpisode } from "../controllers/episodes.controller";
+// import { Router } from "express";
+// import { getEpisode } from "../controllers/episodes.controller";
 
-const router = Router();
+// const router = Router();
 
-// GET /api/episodes/:id
-router.get("/:id", getEpisode);
+// // GET /api/episodes/:id
+// router.get("/:id", getEpisode);
 
-export default router;
+// export default router;
