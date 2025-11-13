@@ -135,16 +135,16 @@ export function HomePage() {
         </FilterButton>
       </div>
 
-      {/* Grid area */}
-      <div className="relative min-h-[300px]">
+      {/* List area */}
+      <div className="flex flex-col gap-6">
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
+          <div className="flex flex-col gap-6">
             {Array.from({ length: 10 }).map((_, i) => (
               <ShowCardPlaceholder key={i} />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
+          <div className="flex flex-col gap-6">
             {shows.map((s) => (
               <ShowCard key={s.id} show={s} />
             ))}
