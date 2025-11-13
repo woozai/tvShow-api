@@ -27,6 +27,27 @@ export async function listShows(
   }
 }
 
+export async function listEpisodesBySeason(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const seasonId = Number(req.params.seasonId);
+    if (!Number.isFinite(seasonId) || seasonId <= 0) {
+      return res.status(400).json({ error: "Invalid season id" });
+    }
+
+    const items = await showService.getEpisodesBySeasonId(seasonId);
+    // sort by episode number
+    items.sort((a, b) => (a.number ?? 0) - (b.number ?? 0));
+
+    res.json({ count: items.length, items });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function getShow(req: Request, res: Response, next: NextFunction) {
   try {
     const id = Number(req.params.id);
@@ -43,7 +64,10 @@ export async function getShow(req: Request, res: Response, next: NextFunction) {
     else if (Array.isArray(e2)) embed = e2 as string[];
     else if (typeof e2 === "string" && e2) embed = [e2];
 
-    const data = await showService.getShowById(id, embed !== undefined ? { embed } : undefined);
+    const data = await showService.getShowById(
+      id,
+      embed !== undefined ? { embed } : undefined
+    );
     res.json(data);
   } catch (err) {
     next(err);

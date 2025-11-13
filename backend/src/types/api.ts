@@ -33,6 +33,7 @@ export type TVMazeEmbedded = {
   episodes?: TVMazeEpisode[];
   seasons?: TVMazeSeason[];
   cast?: { person: TVMazePerson; character: TVMazeCharacter }[];
+  guestcast?: { person: TVMazePerson; character: TVMazeCharacter }[];
   [key: string]: unknown;
 };
 
@@ -49,7 +50,7 @@ export type TVMazeShow = {
   _links?: Links;
   page?: number;
   limit?: number;
-  _embedded?: string;
+  _embedded?: TVMazeEmbedded;
 };
 
 export type TVMazeSeason = {
