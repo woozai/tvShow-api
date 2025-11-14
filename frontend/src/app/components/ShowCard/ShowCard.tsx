@@ -1,13 +1,13 @@
 import { useState, type KeyboardEvent } from "react";
 import type { Show } from "../../../types/show";
 import { useNavigate } from "react-router-dom";
+import { ExpandableText } from "../ExpandableText";
 
 interface Props {
   show: Show;
 }
 
 export function ShowCard({ show }: Props) {
-  const [expanded, setExpanded] = useState(false);
   const navigate = useNavigate();
   const imageUrl = show.image?.medium;
   const rating = show.rating?.average;
@@ -45,7 +45,7 @@ export function ShowCard({ show }: Props) {
       <div className="flex items-start gap-3 p-3">
         {/* Image with fixed aspect ratio (matches placeholder) */}
         <div className="w-32 sm:w-36 md:w-40 shrink-0">
-          <div className="relative w-full aspect-[2/3]">
+          <div className="relative w-full aspect-2/3">
             {imageUrl ? (
               <img
                 src={imageUrl}
@@ -85,28 +85,13 @@ export function ShowCard({ show }: Props) {
 
           <div className="w-full border-t border-gray-700 my-1" />
 
-          {/* Summary */}
-          <p
-            className={`
-              text-sm sm:text-base text-gray-300
-              ${expanded ? "" : "line-clamp-3"}
-            `}
-          >
-            {summaryText}
-          </p>
-
-          {/* Show more / less */}
-          {summaryText.length > 140 && (
-            <button
-              type="button"
-              className="text-xs sm:text-sm text-blue-400 hover:underline"
-              onClick={(e) => {
-                e.stopPropagation(); // don't trigger card click
-                setExpanded((prev) => !prev);
-              }}
-            >
-              {expanded ? "Show less" : "Show more"}
-            </button>
+          {summaryText && (
+            <ExpandableText
+              text={summaryText}
+              maxLines={4}
+              className="text-sm sm:text-base text-gray-300"
+              buttonClassName="text-xs text-blue-400 hover:underline mt-1"
+            />
           )}
         </div>
       </div>

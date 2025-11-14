@@ -12,7 +12,7 @@ export function ShowCardPlaceholder() {
       <div className="flex items-start gap-3">
         {/* Image placeholder */}
         <div className="w-32 sm:w-36 md:w-40 shrink-0">
-          <div className="w-full aspect-[2/3] bg-gray-800 rounded-md" />
+          <div className="w-full aspect-2/3 bg-gray-800 rounded-md" />
         </div>
 
         {/* Right side content — EXACT SAME STRUCTURE + GAPS */}
