@@ -1,5 +1,6 @@
 import type { Episode } from "../../../types/show";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
+import { ExpandableText } from "../ExpandableText";
 
 interface Props {
   episode: Episode;
@@ -8,6 +9,9 @@ interface Props {
 
 export function EpisodeCard({ episode, onClick }: Props) {
   const img = episode.image?.medium ?? undefined;
+  const cleanSummary = episode.summary
+    ? episode.summary.replace(/<[^>]+>/g, "")
+    : "";
 
   return (
     <li
@@ -24,7 +28,7 @@ export function EpisodeCard({ episode, onClick }: Props) {
     >
       {/* Image */}
       {img ? (
-        <div className="relative flex-shrink-0 w-28 h-[72px] overflow-hidden rounded-md">
+        <div className="relative shrink-0 w-40 h-28 overflow-hidden rounded-md">
           <img
             src={img}
             alt={episode.name}
@@ -33,7 +37,7 @@ export function EpisodeCard({ episode, onClick }: Props) {
           />
         </div>
       ) : (
-        <div className="w-28 h-[72px] bg-white/10 rounded-md flex items-center justify-center text-xs opacity-50">
+        <div className="w-40 h-28 bg-white/10 rounded-md flex items-center justify-center text-xs opacity-50">
           No image
         </div>
       )}
@@ -69,11 +73,12 @@ export function EpisodeCard({ episode, onClick }: Props) {
             : ""}
         </div>
 
-        {/* Summary */}
-        {episode.summary && (
-          <div
-            className="text-xs opacity-90 mt-1 line-clamp-2 prose prose-invert max-w-none"
-            dangerouslySetInnerHTML={{ __html: episode.summary }}
+        {cleanSummary && (
+          <ExpandableText
+            text={cleanSummary}
+            maxLines={2}
+            className="text-sm sm:text-base text-gray-300"
+            buttonClassName="text-xs text-blue-400 hover:underline mt-1"
           />
         )}
       </div>

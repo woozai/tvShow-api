@@ -18,6 +18,8 @@ export function SeasonBlock({
   onToggle,
   onEpisodeClick,
 }: Props) {
+  const hasEpisodes = episodes && episodes.length > 0;
+
   return (
     <div className="rounded-lg border border-white/10">
       <button
@@ -27,7 +29,9 @@ export function SeasonBlock({
       >
         <div className="text-sm">
           Season {season.number}
-          {season.episodeOrder ? ` • ${season.episodeOrder} episodes` : ""}
+          {season.episodeOrder != null
+            ? ` • ${season.episodeOrder} episodes`
+            : " • No information"}
           {season.premiereDate ? ` • ${season.premiereDate}` : ""}
         </div>
         <span className="text-xs opacity-70">
@@ -41,16 +45,20 @@ export function SeasonBlock({
             <div className="h-20 rounded bg-white/5 animate-pulse" />
           )}
 
-          {!isLoading && episodes && (
+          {!isLoading && hasEpisodes && (
             <ul className="mt-2 space-y-2">
-              {episodes.map((e) => (
+              {episodes!.map((e) => (
                 <EpisodeCard key={e.id} episode={e} onClick={onEpisodeClick} />
               ))}
             </ul>
           )}
 
-          {!isLoading && !episodes && (
-            <div className="mt-2 text-xs opacity-70">No episodes found.</div>
+          {!isLoading && !hasEpisodes && (
+            <div className="mt-3 p-3 rounded-md bg-white/5 text-center">
+              <div className="text-sm opacity-80">
+                No episodes available for this season.
+              </div>
+            </div>
           )}
         </div>
       )}
