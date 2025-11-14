@@ -1,8 +1,10 @@
+// apply same pattern to all early-returns
 import { Request, Response, NextFunction } from "express";
 import * as showService from "../services/show.service";
 import { FilterParams, SortKey } from "../types/filters";
 import { getFilteredShows } from "../services/show.service";
 import { qs, qn, qenum, qorder } from "../utils/queryParsers";
+import { ApiError } from "../middlewares/errorHandler";
 
 export async function listShows(
   req: Request,
@@ -11,17 +13,11 @@ export async function listShows(
 ) {
   try {
     const page = Number(req.query.page ?? 0);
-    if (Number.isNaN(page) || page < 0)
-      return res
-        .status(400)
-        .json({ error: "'page' must be a non-negative number" });
-
+    if (Number.isNaN(page) || page < 0) {
+      return next(new ApiError(400, "'page' must be a non-negative number"));
+    }
     const shows = await showService.getShows(page);
-    res.json({
-      page,
-      count: shows.length,
-      items: shows,
-    });
+    res.json({ page, count: shows.length, items: shows });
   } catch (err) {
     next(err);
   }
@@ -35,13 +31,11 @@ export async function listEpisodesBySeason(
   try {
     const seasonId = Number(req.params.seasonId);
     if (!Number.isFinite(seasonId) || seasonId <= 0) {
-      return res.status(400).json({ error: "Invalid season id" });
+      return next(new ApiError(400, "Invalid season id"));
     }
-
-    const items = await showService.getEpisodesBySeasonId(seasonId);
     // sort by episode number
+    const items = await showService.getEpisodesBySeasonId(seasonId);
     items.sort((a, b) => (a.number ?? 0) - (b.number ?? 0));
-
     res.json({ count: items.length, items });
   } catch (err) {
     next(err);
@@ -51,15 +45,13 @@ export async function listEpisodesBySeason(
 export async function getShow(req: Request, res: Response, next: NextFunction) {
   try {
     const id = Number(req.params.id);
-    if (Number.isNaN(id))
-      return res.status(400).json({ error: "Invalid show id" });
-
+    if (Number.isNaN(id)) return next(new ApiError(400, "Invalid show id"));
     // Support both ?embed=episodes and ?embed[]=episodes&embed[]=cast
+
     const e1 = req.query.embed;
     const e2 = (req.query as any)["embed[]"];
-
     let embed: string | string[] | undefined;
-    if (Array.isArray(e1)) embed = e1 as string[]; // rare with default parser
+    if (Array.isArray(e1)) embed = e1 as string[];
     else if (typeof e1 === "string" && e1) embed = e1;
     else if (Array.isArray(e2)) embed = e2 as string[];
     else if (typeof e2 === "string" && e2) embed = [e2];
@@ -81,8 +73,7 @@ export async function listEpisodesForShow(
 ) {
   try {
     const id = Number(req.params.id);
-    if (Number.isNaN(id))
-      return res.status(400).json({ error: "Invalid show id" });
+    if (Number.isNaN(id)) return next(new ApiError(400, "Invalid show id"));
 
     const data = await showService.getEpisodesByShowId(id);
     res.json(data);
@@ -121,8 +112,7 @@ export async function listShowsWithFilters(
     const page = qn(req.query.page);
     const limit = qn(req.query.limit);
 
-    // build params without ever assigning `undefined`
-    const p: FilterParams = { order }; // safe to always set
+    const p: FilterParams = { order };
     if (q) p.q = q;
     if (genresArr.length) p.genres = genresArr;
     if (typeof ratingGte === "number") p.rating_gte = ratingGte;
@@ -140,5 +130,3 @@ export async function listShowsWithFilters(
     next(err);
   }
 }
-
-

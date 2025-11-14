@@ -1,10 +1,11 @@
-// replace entire file with this
 import { Request, Response, NextFunction } from "express";
+import { logger } from "../utils/logger";
 
 /** Custom application error */
 export class ApiError extends Error {
   status: number;
   details?: unknown;
+
   constructor(status: number, message: string, details?: unknown) {
     super(message);
     this.status = status;
@@ -12,31 +13,31 @@ export class ApiError extends Error {
   }
 }
 
-/** Central error handler – consistent shape */
+/** Central error handler */
 export function errorHandler(
   err: unknown,
   _req: Request,
   res: Response,
   _next: NextFunction
 ) {
-  // Known application error
+  // Our known error
   if (err instanceof ApiError) {
     return res.status(err.status).json({
       message: err.message,
-      ...(err.details !== undefined ? { details: err.details } : {}),
+      details: err.details,
     });
   }
 
-  // External fetch wrapper (HttpError from utils/httpClient)
+  // Fetch wrapper error (HttpError)
   if (err instanceof Error && "status" in err) {
     const anyErr = err as any;
-    return res.status(anyErr.status || 502).json({
-      message: anyErr.message || "Upstream service error",
-      ...(anyErr.body !== undefined ? { details: anyErr.body } : {}),
+    return res.status(anyErr.status || 500).json({
+      message: anyErr.message || "External API error",
+      external: anyErr.body,
     });
   }
 
-  // Unknown error
+  // Unknown/unexpected errors
   return res.status(500).json({
     message: err instanceof Error ? err.message : "Internal Server Error",
   });
