@@ -8,7 +8,11 @@ interface Props {
 
 export function CastList({ cast }: Props) {
   if (!cast.length) {
-    return <div className="text-sm opacity-70">No cast information.</div>;
+    return (
+      <div className="text-sm text-zinc-600 dark:text-zinc-400">
+        No cast information.
+      </div>
+    );
   }
 
   return (
@@ -16,46 +20,31 @@ export function CastList({ cast }: Props) {
       {cast.map((c) => {
         const person = c.person;
         const character = c.character;
-        const img =
-          person?.image?.medium || person?.image?.original || undefined;
+        const img = person?.image?.medium || person?.image?.original;
 
-        const hasPersonLink = Boolean(person?.url);
-        const hasCharacterLink = Boolean(character?.url);
-
-        const handleCardClick = () => {
-          if (person?.url) {
-            window.open(person.url, "_blank", "noopener,noreferrer");
-          }
-        };
-
-        const handleCardKeyDown: React.KeyboardEventHandler<HTMLLIElement> = (
-          event
-        ) => {
-          if (!hasPersonLink) return;
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            handleCardClick();
-          }
-        };
+        const clickable = Boolean(person?.url);
 
         return (
           <li
             key={`${person?.id ?? "p"}-${character?.id ?? "c"}`}
-            className={`rounded-lg border border-white/10 p-4 flex flex-col hover:border-red-500 hover:shadow-xl hover:bg-white/5 transition
-    ${hasPersonLink ? "cursor-pointer" : "cursor-default"}`}
-            onClick={hasPersonLink ? handleCardClick : undefined}
-            onKeyDown={hasPersonLink ? handleCardKeyDown : undefined}
-            role={hasPersonLink ? "button" : undefined}
-            tabIndex={hasPersonLink ? 0 : -1}
+            className={`
+              rounded-lg border 
+              border-zinc-300 dark:border-white/10 
+              bg-zinc-100 dark:bg-[#0b0e13]
+              hover:border-red-500 hover:shadow-lg hover:bg-zinc-200 dark:hover:bg-white/5
+              transition cursor-${clickable ? "pointer" : "default"} p-4
+            `}
+            onClick={() => clickable && window.open(person!.url!, "_blank")}
+            role={clickable ? "button" : undefined}
+            tabIndex={clickable ? 0 : -1}
           >
             {/* IMAGE */}
-            <div className="w-full h-52 rounded-md overflow-hidden bg-white/10 flex items-center justify-center">
+            <div className="w-full h-52 rounded-md overflow-hidden bg-zinc-300 dark:bg-white/10 flex items-center justify-center">
               {img ? (
                 <img
                   src={img}
                   alt={person?.name ?? "Actor"}
                   className="w-full h-full object-cover"
-                  loading="lazy"
                 />
               ) : (
                 <div className="text-xs opacity-50">No image</div>
@@ -64,34 +53,27 @@ export function CastList({ cast }: Props) {
 
             {/* TEXT */}
             <div className="mt-3">
-              {/* Actor name – bigger text + hover shows full name */}
               <div
-                className="text-base font-semibold truncate" // ⬅ increased from text-sm
-                title={person?.name ?? "Unknown Actor"} // ⬅ hover: full actor name
+                className="text-base font-semibold truncate text-zinc-800 dark:text-white"
+                title={person?.name}
               >
                 {person?.name ?? "Unknown Actor"}
               </div>
 
-              {/* Character line – bigger text + hover shows full character name */}
-              <div className="text-sm opacity-80 truncate">
-                {" "}
-                {/* ⬅ was text-xs */}
+              <div className="text-sm text-zinc-600 dark:text-zinc-300 truncate">
                 as{" "}
-                {hasCharacterLink ? (
+                {character?.url ? (
                   <a
-                    href={character!.url}
+                    href={character.url}
+                    onClick={(e) => e.stopPropagation()}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="underline-offset-2 hover:underline text-blue-400"
-                    onClick={(e) => e.stopPropagation()} // prevent card click
-                    title={character?.name ?? "Unknown Role"} // ⬅ hover: full character name
+                    className="text-blue-600 dark:text-blue-400 hover:underline"
                   >
-                    {character?.name ?? "Unknown Role"}
+                    {character?.name}
                   </a>
                 ) : (
-                  <span title={character?.name ?? "Unknown Role"}>
-                    {character?.name ?? "Unknown Role"}
-                  </span>
+                  character?.name ?? "Unknown Role"
                 )}
               </div>
             </div>
