@@ -4,7 +4,7 @@ import { SearchPage } from "./pages/SearchPage";
 import ShowPage from "./pages/ShowPage";
 import { SearchHeader } from "./components/search/SearchHeader";
 import { FavoritesPage } from "./pages/FavoritePage";
-import { FavoritesProvider } from "../hooks/useFavorites";
+import { FavoritesProvider } from "./providers/FavoritesProvider";
 
 export default function App() {
   return (
