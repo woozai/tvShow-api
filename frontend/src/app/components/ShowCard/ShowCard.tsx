@@ -64,7 +64,7 @@ export function ShowCard({ show }: Props) {
               <img
                 src={imageUrl}
                 alt={show.name}
-                className="absolute inset-0 h-full w-full object-contain"
+                className="absolute inset-0 h-full w-full object-cover"
                 loading="lazy"
               />
             ) : (
