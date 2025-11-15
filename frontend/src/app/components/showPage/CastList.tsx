@@ -55,7 +55,7 @@ export function CastList({ cast }: Props) {
             <div className="mt-3">
               <div
                 className="text-base font-semibold truncate text-zinc-800 dark:text-white"
-                title={person?.name}
+                title={person?.name ?? "Unknown Actor"}
               >
                 {person?.name ?? "Unknown Actor"}
               </div>
@@ -69,11 +69,16 @@ export function CastList({ cast }: Props) {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 dark:text-blue-400 hover:underline"
+                    title={character?.name ?? "Unknown Role"} // 👈 tooltip back
                   >
-                    {character?.name}
+                    {character?.name ?? "Unknown Role"}
                   </a>
                 ) : (
-                  character?.name ?? "Unknown Role"
+                  <span title={character?.name ?? "Unknown Role"}>
+                    {" "}
+                    {/* 👈 tooltip for non-link */}
+                    {character?.name ?? "Unknown Role"}
+                  </span>
                 )}
               </div>
             </div>
