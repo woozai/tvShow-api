@@ -2,6 +2,7 @@ import { type KeyboardEvent } from "react";
 import type { Show } from "../../../types/show";
 import { useNavigate } from "react-router-dom";
 import { ExpandableText } from "../ExpandableText";
+import { useFavorites } from "../../../hooks/useFavorites";
 
 interface Props {
   show: Show;
@@ -22,6 +23,9 @@ export function ShowCard({ show }: Props) {
   const rawSummary = show.summary ?? "No summary available.";
   // Remove any HTML tags from TVMaze summaries
   const summaryText = rawSummary.replace(/<[^>]+>/g, "");
+
+  const { isFav, toggle } = useFavorites();
+  const fav = isFav(show.id);
 
   const handleClick = () => {
     navigate(`/show/${show.id}`);
@@ -87,14 +91,26 @@ export function ShowCard({ show }: Props) {
               {show.name}
             </h2>
 
-            <p
-              className="
-                text-base sm:text-lg font-medium shrink-0 ml-2
-                text-yellow-500 dark:text-yellow-400
-              "
-            >
-              ⭐ {rating ?? "N/A"}
-            </p>
+            <div className="flex items-center">
+              <p
+                className="
+                  text-base sm:text-lg font-medium shrink-0 ml-2
+                  text-yellow-500 dark:text-yellow-400
+                "
+              >
+                ⭐ {rating ?? "N/A"}
+              </p>
+              {/* ❤️ FAVORITE BUTTON */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggle(show.id);
+                }}
+                className="text-xl transition hover:scale-110 ml-2"
+              >
+                {fav ? "❤️" : "🤍"}
+              </button>
+            </div>
           </div>
 
           {/* Genres line */}

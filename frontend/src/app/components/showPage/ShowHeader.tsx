@@ -7,6 +7,7 @@ import {
   ClipboardDocumentCheckIcon,
 } from "@heroicons/react/24/outline";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
+import { useFavorites } from "../../../hooks/useFavorites";
 
 interface Props {
   show: Show;
@@ -14,7 +15,8 @@ interface Props {
 
 export function ShowHeader({ show }: Props) {
   const [copied, setCopied] = useState(false);
-
+  const { isFav, toggle } = useFavorites();
+  const fav = isFav(show.id);
   const handleCopy = () => {
     if (!show.url) return;
     navigator.clipboard.writeText(show.url);
@@ -83,8 +85,14 @@ export function ShowHeader({ show }: Props) {
 
         {/* Rating */}
         {show.rating?.average != null && (
-          <div className="mt-1 text-sm opacity-80">
+          <div className="mt-1 text-xl opacity-80">
             ⭐ {show.rating.average}
+            <button
+              onClick={() => toggle(show.id)}
+              className="text-xl hover:scale-110 transition ml-2"
+            >
+              {fav ? "❤️" : "🤍"}
+            </button>
           </div>
         )}
 
