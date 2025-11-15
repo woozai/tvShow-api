@@ -1,12 +1,13 @@
+interface ButtonInFilterProps {
+  buttonType: string;
+  isActive: boolean;
+  onToggle: (genre: string) => void;
+}
 export const ButtonInFilter = ({
   buttonType,
   isActive,
   onToggle,
-}: {
-  buttonType: string;
-  isActive: boolean;
-  onToggle: (genre: string) => void;
-}) => {
+}: ButtonInFilterProps) => {
   return (
     <button
       key={buttonType}
