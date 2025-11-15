@@ -18,10 +18,16 @@ export function FilterButton({
 }: FilterButtonProps) {
   const base =
     "inline-flex items-center justify-between gap-3 rounded-xl px-3 py-1.5 text-sm transition active:scale-95";
+
+  /** Inactive: neutral gray, theme-aware */
   const inactive =
-    "border border-white/10 text-white hover:bg-white/5 hover:ring-2 hover:ring-white/10";
+    "border border-zinc-300 text-zinc-700 hover:bg-zinc-100 hover:ring-2 hover:ring-zinc-200 " +
+    "dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-white/10 dark:hover:ring-white/10";
+
+  /** Active: always “red-ish” in both themes */
   const activeState =
-    "border border-red-500 text-red-400 hover:bg-red-500/10 hover:ring-2 hover:ring-red-500";
+    "border border-red-500 bg-red-500/10 text-red-600 hover:bg-red-500/20 hover:ring-2 hover:ring-red-500 " +
+    "dark:border-red-400 dark:bg-red-500/20 dark:text-red-200 dark:hover:bg-red-500/30";
 
   return (
     <button
@@ -38,7 +44,9 @@ export function FilterButton({
           height="16"
           viewBox="0 0 24 24"
           className={`transition-colors ${
-            active ? "text-red-400" : "text-white/80"
+            active
+              ? "text-red-600 dark:text-red-200"
+              : "text-zinc-500 dark:text-zinc-400"
           }`}
           aria-hidden="true"
         >
@@ -46,7 +54,9 @@ export function FilterButton({
         </svg>
         <span
           className={`transition-colors ${
-            active ? "text-red-400" : "text-white/90"
+            active
+              ? "text-red-600 dark:text-red-200"
+              : "text-zinc-700 dark:text-zinc-200"
           }`}
         >
           {children || "Filters"}
@@ -69,7 +79,11 @@ export function FilterButton({
           ariaLabel={active ? "Disable filters" : "Enable filters"}
           title={active ? "Disable filters" : "Enable filters"}
           size="sm"
-          className={active ? "border-red-500 bg-red-500/25" : ""}
+          className={
+            active
+              ? "border-red-500 bg-red-500/25"
+              : "border-zinc-300 bg-zinc-100 dark:border-zinc-700 dark:bg-white/10"
+          }
         />
       </div>
     </button>

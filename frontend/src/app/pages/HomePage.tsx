@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { ShowCard } from "../components/ShowCard/ShowCard";
+import { ShowCard } from "../components/showCard/ShowCard";
 import type { Show } from "../../types/show";
 import { getPopularShows } from "../../api/shows";
 import { FilterButton } from "../components/filters/FilterButton";
 import type { FilterParams } from "../../types/filterParams";
 import { getFilteredShows } from "../../api/filtered";
-import { ShowCardPlaceholder } from "../components/ShowCard/ShowCardPlaceHolder";
+import { ShowCardPlaceholder } from "../components/showCard/ShowCardPlaceHolder";
 import { FilterModal } from "../components/filters/FilterModal";
 
 export function HomePage() {

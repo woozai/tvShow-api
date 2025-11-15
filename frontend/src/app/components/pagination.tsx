@@ -18,7 +18,9 @@ export function Pagination({
       <button
         onClick={onPrev}
         disabled={disablePrev}
-        className="px-3 py-1.5 rounded-md bg-[#1a1e24] text-white disabled:opacity-40 hover:bg-[#232830] transition"
+        className="px-3 py-1.5 rounded-md bg-zinc-100 dark:bg-[#1a1e24]
+           text-zinc-900 dark:text-white disabled:opacity-40
+           hover:bg-zinc-200 dark:hover:bg-[#232830] transition"
         aria-label="Previous page"
       >
         ← Prev
@@ -31,7 +33,9 @@ export function Pagination({
       <button
         onClick={onNext}
         disabled={disableNext}
-        className="px-3 py-1.5 rounded-md bg-[#1a1e24] text-white disabled:opacity-40 hover:bg-[#232830] transition"
+        className="px-3 py-1.5 rounded-md bg-zinc-100 dark:bg-[#1a1e24]
+           text-zinc-900 dark:text-white disabled:opacity-40
+           hover:bg-zinc-200 dark:hover:bg-[#232830] transition"
         aria-label="Next page"
       >
         Next →
