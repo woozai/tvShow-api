@@ -1,9 +1,19 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
+/* Make the page itself switch colors */
 :root {
   color-scheme: light dark;
 }
 
 body {
-  @apply antialiased;
+  /* This controls the homepage background */
+  @apply bg-white text-zinc-900
+         dark:bg-[#0b0e13] dark:text-white
+         transition-colors duration-200;
+}
+
+/* Ensure the React root can stretch */
+#root {
+  @apply min-h-screen;
 }
