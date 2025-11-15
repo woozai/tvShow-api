@@ -29,6 +29,7 @@ export function SearchHeader() {
   const [open, setOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [dropPos, setDropPos] = useState<DropPos>(null);
+  const isFavoritesPage = location.pathname === "/favorites";
 
   // Sync input with the URL (single source of truth)
   useEffect(() => {
@@ -144,6 +145,34 @@ export function SearchHeader() {
             "
           />
         </form>
+
+        {/* Right: Favorites + Theme toggle */}
+        <button
+          type="button"
+          onClick={() => {
+            if (isFavoritesPage) {
+              // If user has history → go back
+              if (window.history.state && window.history.state.idx > 0) {
+                navigate(-1);
+              } else {
+                navigate("/"); // fallback
+              }
+            } else {
+              navigate("/favorites");
+            }
+          }}
+          className={`
+                text-sm rounded-md px-3 py-1.5 transition border 
+                ${
+                  isFavoritesPage
+                    ? "bg-red-500 text-white border-red-600 hover:bg-red-600"
+                    : "border-zinc-300 text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-white/10"
+                }
+                `}
+          title="Favorites"
+        >
+          ❤️ Favorites
+        </button>
 
         {/* Right: Theme toggle */}
         <ThemeToggle />
