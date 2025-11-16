@@ -4,14 +4,14 @@ import { ButtonInFilter } from "./ButtonInFilter";
 interface GenresFilterProps {
   title?: string;
   options: string[];
-  value: string[];
+  value: string[]; // 0 = Any, 1 = chosen genre
   onChange: (next: string[]) => void;
 }
 
 /**
  * GenresFilter
- * - Multi-select pill list
- * - Theme-aware styles (light + dark)
+ * - Single-select (0 or 1 genre)
+ * - Empty array = Any
  */
 export const GenresFilter = memo(function GenresFilter({
   title = "Genres",
@@ -19,17 +19,20 @@ export const GenresFilter = memo(function GenresFilter({
   value,
   onChange,
 }: GenresFilterProps) {
-  // Toggle a genre in/out of the selected list
+  // Allow only 0 or 1 selected genre
   const toggle = (g: string) => {
-    const exists = value.includes(g);
-    if (exists) {
-      onChange(value.filter((x) => x !== g));
+    const isSelected = value.includes(g);
+
+    if (isSelected) {
+      // clicking again clears selection → Any
+      onChange([]);
     } else {
-      onChange([...value, g]);
+      // always keep only this one genre
+      onChange([g]);
     }
   };
 
-  const selectedCount = value.length;
+  const selectedGenre = value[0]; // either undefined or single genre
 
   return (
     <section className="mb-6">
@@ -39,7 +42,7 @@ export const GenresFilter = memo(function GenresFilter({
           {title}
         </span>
         <span className="text-xs text-zinc-500 dark:text-zinc-400">
-          {selectedCount ? `${selectedCount} selected` : "Any"}
+          {selectedGenre ?? "Any"}
         </span>
       </div>
 
@@ -54,7 +57,7 @@ export const GenresFilter = memo(function GenresFilter({
               buttonType={g}
               isActive={active}
               onToggle={() => toggle(g)}
-            ></ButtonInFilter>
+            />
           );
         })}
       </div>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ShowCard } from "../components/showCard/ShowCard";
 import type { Show } from "../../types/show";
 import { getPopularShows } from "../../api/shows";
@@ -14,6 +14,8 @@ export function HomePage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [params, setParams] = useState<FilterParams>({});
   const [filtersEnabled, setFiltersEnabled] = useState(false);
+
+  const hasLoadedInitialPopularRef = useRef(false);
 
   const genresOptions = [
     "Drama",
@@ -40,6 +42,11 @@ export function HomePage() {
 
   // Load initial popular shows
   useEffect(() => {
+    if (hasLoadedInitialPopularRef.current) {
+      return;
+    }
+    hasLoadedInitialPopularRef.current = true;
+
     (async () => {
       try {
         const data = await getPopularShows();
