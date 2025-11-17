@@ -15,7 +15,6 @@ interface Props {
 
 export function ShowHeader({ show }: Props) {
   const [copied, setCopied] = useState(false);
-  const imageUrl = show.image?.original ?? show.image?.medium ?? null;
   const { isFav, toggle } = useFavorites();
   const fav = isFav(show.id);
   const handleCopy = () => {

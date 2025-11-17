@@ -24,8 +24,12 @@ function Root() {
   return <App />;
 }
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <Root />
-  </React.StrictMode>
-);
+// // for development
+// ReactDOM.createRoot(document.getElementById("root")!).render(
+//   <React.StrictMode>
+//     <Root />
+//   </React.StrictMode>
+// );
+
+// for preview
+ReactDOM.createRoot(document.getElementById("root")!).render(<Root />);
