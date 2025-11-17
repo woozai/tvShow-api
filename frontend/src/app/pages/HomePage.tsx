@@ -9,6 +9,7 @@ import { ShowCardPlaceholder } from "../components/showCard/ShowCardPlaceholder"
 import { FilterModal } from "../components/filters/FilterModal";
 import { Pagination } from "../components/pagination";
 import { useSearchParams } from "react-router-dom";
+import { genresOptions, languageOptions } from "../constants/filters";
 
 const PAGE_SIZE = 20;
 
@@ -20,24 +21,6 @@ export function HomePage() {
   const [params, setParams] = useState<FilterParams>({});
   const [filtersEnabled, setFiltersEnabled] = useState(false);
   const [pageCount, setPageCount] = useState(0); // how many items returned in this page
-
-  const genresOptions = [
-    "Drama",
-    "Comedy",
-    "Action",
-    "Science-Fiction",
-    "Romance",
-    "Thriller",
-    "Horror",
-    "Fantasy",
-  ];
-  const languageOptions = [
-    "English",
-    "Japanese",
-    "Korean",
-    "Spanish",
-    "German",
-  ];
 
   const hasSavedFilters = Boolean(
     (params.genres && params.genres.length) ||
