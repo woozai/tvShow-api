@@ -11,8 +11,14 @@ app.use(express.json());
 app.use(requestLogger);
 
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
-
 app.use("/api", apiRouter);
+
+app.use((req, res, _next) => {
+  if (req.path.startsWith("/api/")) {
+    return res.status(404).json({ message: "Not Found" });
+  }
+  res.status(404).send("Not Found");
+});
 
 // Centralized error handler
 app.use(errorHandler);
