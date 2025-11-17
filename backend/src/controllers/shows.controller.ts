@@ -109,23 +109,23 @@ export async function listShowsWithFilters(
     const yearMin = qn(req.query.year_min);
     const yearMax = qn(req.query.year_max);
     const status = qs(req.query.status);
-    const sort = qenum<SortKey>(req.query.sort, [
-      "rating",
-      "name",
-      "premiered",
-    ] as const);
+    const sort =
+      qenum<SortKey>(req.query.sort, [
+        "rating",
+        "name",
+        "premiered",
+      ] as const) ?? "rating";
     const order = qorder(req.query.order) ?? "desc";
-    const page = qn(req.query.page);
-    const limit = qn(req.query.limit);
+    const page = qn(req.query.page) ?? 0;
+    const limit = qn(req.query.limit) ?? 20;
 
-    const p: FilterParams = { order };
+    const p: FilterParams = { order, sort, page, limit };
     if (q) p.q = q;
     if (genresArr.length) p.genres = genresArr;
     if (typeof ratingGte === "number") p.rating_gte = ratingGte;
     if (typeof yearMin === "number") p.year_min = yearMin;
     if (typeof yearMax === "number") p.year_max = yearMax;
     if (status) p.status = status;
-    if (sort) p.sort = sort;
     if (typeof page === "number") p.page = page;
     if (typeof limit === "number") p.limit = limit;
     if (language) p.language = language;

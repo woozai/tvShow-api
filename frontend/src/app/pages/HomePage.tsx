@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { ShowCard } from "../components/showCard/ShowCard";
 import type { Show } from "../../types/show";
 import { getPopularShows } from "../../api/shows";
@@ -8,14 +8,16 @@ import { getFilteredShows } from "../../api/filtered";
 import { ShowCardPlaceholder } from "../components/showCard/ShowCardPlaceholder";
 import { FilterModal } from "../components/filters/FilterModal";
 
+const PAGE_SIZE = 20;
+
 export function HomePage() {
+  const [page, setPage] = useState(0); // 0-based
   const [shows, setShows] = useState<Show[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [params, setParams] = useState<FilterParams>({});
   const [filtersEnabled, setFiltersEnabled] = useState(false);
-
-  const hasLoadedInitialPopularRef = useRef(false);
+  const [pageCount, setPageCount] = useState(0); // how many items returned in this page
 
   const genresOptions = [
     "Drama",
@@ -34,100 +36,115 @@ export function HomePage() {
     "Spanish",
     "German",
   ];
+
   const hasSavedFilters = Boolean(
     (params.genres && params.genres.length) ||
       params.language ||
       params.rating_gte
   );
 
-  // Load initial popular shows
+  const isFirstPage = page === 0;
+  const isLastPage = pageCount < PAGE_SIZE; // backend returned less than 20 → end
+
+  // 🔹 Single effect: load data whenever page / filters change
   useEffect(() => {
-    if (hasLoadedInitialPopularRef.current) {
-      return;
-    }
-    hasLoadedInitialPopularRef.current = true;
+    let cancelled = false;
 
-    (async () => {
+    async function load() {
+      setLoading(true);
+
       try {
-        const data = await getPopularShows();
-        setShows(data.items);
+        if (!filtersEnabled) {
+          // Popular shows (no filters)
+          const data = await getPopularShows(page, PAGE_SIZE);
+          if (cancelled) return;
+          setShows(data.items);
+          setPageCount(data.count ?? data.items.length);
+        } else {
+          // Filtered shows
+          const res = await getFilteredShows({
+            ...params,
+            page,
+            limit: PAGE_SIZE,
+          });
+          if (cancelled) return;
+          setShows(res.items);
+          setPageCount(res.count ?? res.items.length);
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
-    })();
-  }, []);
+    }
 
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [page, filtersEnabled, params]);
+
+  // 🔹 Called from FilterModal when user clicks "Apply"
   async function applyFilters(next: {
     genres: string[];
     language?: string;
     rating_gte?: number;
   }) {
-    setLoading(true);
-    try {
-      const hasGenres = Array.isArray(next.genres) && next.genres.length > 0;
-      const hasLanguage = !!next.language;
-      const hasRating_gte = !!next.rating_gte;
+    const hasGenres = Array.isArray(next.genres) && next.genres.length > 0;
+    const hasLanguage = !!next.language;
+    const hasRating_gte = !!next.rating_gte;
 
-      const noFiltersChosen = !hasGenres && !hasLanguage && !hasRating_gte;
+    const noFiltersChosen = !hasGenres && !hasLanguage && !hasRating_gte;
 
-      if (noFiltersChosen) {
-        setFiltersEnabled(false);
-        setParams({});
-        const data = await getPopularShows();
-        setShows(data.items);
-      } else {
-        const newParams: FilterParams = {
-          ...params,
-          genres: hasGenres ? next.genres : undefined,
-          language: next.language || undefined,
-          rating_gte: hasRating_gte ? next.rating_gte : undefined,
-        };
+    if (noFiltersChosen) {
+      // Clear filters -> back to popular
+      setFiltersEnabled(false);
+      setParams({});
+      setPage(0);
+    } else {
+      const newParams: FilterParams = {
+        ...params,
+        genres: hasGenres ? next.genres : undefined,
+        language: next.language || undefined,
+        rating_gte: hasRating_gte ? next.rating_gte : undefined,
+      };
 
-        setParams(newParams);
-        setFiltersEnabled(true);
-
-        const res = await getFilteredShows(newParams);
-        setShows(res.items);
-      }
-    } finally {
-      setLoading(false);
-      setIsFilterOpen(false);
+      setParams(newParams);
+      setFiltersEnabled(true);
+      setPage(0); // always restart filtered results from first page
     }
+
+    setIsFilterOpen(false);
   }
 
   function resetFilters() {
     setParams({});
+    setFiltersEnabled(false);
+    setPage(0);
   }
 
+  // 🔹 Toggle only enables/disables filters.
+  //     It re-uses saved params, and lets the effect refetch.
   async function handleToggle() {
     if (filtersEnabled) {
+      // Turn OFF filters → back to popular
       setFiltersEnabled(false);
-      setLoading(true);
-      try {
-        const data = await getPopularShows();
-        setShows(data.items);
-      } finally {
-        setLoading(false);
-      }
+      setPage(0);
       return;
     }
 
-    setFiltersEnabled(true);
-    if (params.genres?.length || params.language || params.rating_gte) {
-      setLoading(true);
-      try {
-        const res = await getFilteredShows(params);
-        setShows(res.items);
-      } finally {
-        setLoading(false);
-      }
+    // Turn ON filters only if we have saved ones
+    if (hasSavedFilters) {
+      setFiltersEnabled(true);
+      setPage(0);
+    } else {
+      // No saved filters → open modal to choose
+      setIsFilterOpen(true);
     }
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="mb-4 flex items-center justify-between gap-3">
+      <div className="mb-2 flex items-center justify-between gap-3">
         <h2 className="text-2xl font-bold">
           {filtersEnabled ? "Filtered Shows" : "Popular Shows"}
         </h2>
@@ -146,7 +163,7 @@ export function HomePage() {
       <div className="flex flex-col gap-6">
         {loading ? (
           <div className="flex flex-col gap-6">
-            {Array.from({ length: 10 }).map((_, i) => (
+            {Array.from({ length: PAGE_SIZE }).map((_, i) => (
               <ShowCardPlaceholder key={i} />
             ))}
           </div>
@@ -159,6 +176,30 @@ export function HomePage() {
         )}
       </div>
 
+      {/* Pagination controls */}
+      <div className="mt-4 flex items-center justify-center gap-4">
+        <button
+          type="button"
+          disabled={isFirstPage || loading}
+          onClick={() => setPage((p) => Math.max(0, p - 1))}
+          className="rounded-md border border-white/10 px-3 py-1.5 text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          Previous
+        </button>
+
+        <span className="text-sm opacity-80">Page {page + 1}</span>
+
+        <button
+          type="button"
+          disabled={isLastPage || loading}
+          onClick={() => setPage((p) => p + 1)}
+          className="rounded-md border border-white/10 px-3 py-1.5 text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          Next
+        </button>
+      </div>
+
+      {/* Filter modal */}
       <FilterModal
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}

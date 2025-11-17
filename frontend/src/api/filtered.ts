@@ -56,3 +56,7 @@ export async function getFilteredShows(
   const url = qs ? `/api/shows/filter?${qs}` : "/api/shows/filter";
   return apiGet<ApiListResponse<Show>>(url);
 }
+
+
+// http://localhost:3000/api/shows/filter?genres=Drama&page=0&limit=20
+// http://localhost:3000/api/shows/filter?genres=Comedy&sort=rating&order=desc&page=1&limit=20
