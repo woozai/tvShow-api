@@ -53,6 +53,9 @@ function buildFilterParamsFromQuery(query: Request["query"]): FilterParams {
     "rating";
   const order = qorder(query.order) ?? "desc";
   const page = qn(query.page) ?? 0;
+  if (query.page !== undefined && page === undefined) {
+    throw new ApiError(400, "'page' must be a non-negative number");
+  }
   const limit = qn(query.limit) ?? 20;
 
   const p: FilterParams = {

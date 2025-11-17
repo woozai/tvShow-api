@@ -1,5 +1,6 @@
 import env from "../config/env";
 import { cache } from "./cache";
+import { logger } from "./logger";
 
 /** Shape for query params */
 type Query = Record<
@@ -64,7 +65,9 @@ async function readBodySafe(res: Response): Promise<unknown> {
     const text = await res.text();
     return text || undefined;
   } catch (error) {
-    console.error("Error reading body:", error);
+    logger.error(
+      `Error reading body from ${res.url ?? "TVMaze"}: ${String(error)}`
+    );
     return undefined;
   }
 }
@@ -134,8 +137,12 @@ export async function httpGet<T>(
   } catch (err: any) {
     // Timeout → treat as 504
     if (err?.name === "AbortError") {
+      logger.error(`Timeout calling ${url}`);
       throw new HttpError(504, "Request timed out", url);
     }
+    logger.error(
+      `Network/HTTP error calling ${url}: ${String(err?.message || err)}`
+    );
 
     // If custom HttpError → rethrow
     if (err instanceof HttpError) throw err;
