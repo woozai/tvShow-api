@@ -12,12 +12,18 @@ export async function listShows(
   next: NextFunction
 ) {
   try {
-    const page = Number(req.query.page ?? 0);
-    if (Number.isNaN(page) || page < 0) {
+    const rawPage = Number(req.query.page ?? 0);
+    if (Number.isNaN(rawPage) || rawPage < 0) {
       return next(new ApiError(400, "'page' must be a non-negative number"));
     }
-    const shows = await showService.getShows(page);
-    res.json({ page, count: shows.length, items: shows });
+
+    // Fixed page size 20 for frontend (can be made configurable via ?limit=… if you want)
+    const limit = 20;
+
+    const result = await showService.getShowsWindow(rawPage, limit);
+
+    // result already has { page, count, items }
+    res.json(result);
   } catch (err) {
     next(err);
   }

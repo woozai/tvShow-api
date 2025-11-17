@@ -18,6 +18,11 @@ export interface FilteredShowsResult {
   items: TVMazeShow[]; // up to `limit` items
 }
 
+export interface PagedShowsResult {
+  page: number; // frontend page index (0-based)
+  count: number; // number of items in this batch (<= limit)
+  items: TVMazeShow[]; // the actual shows
+}
 export interface FilterPagination {
   page: number;
   limit: number;
@@ -46,6 +51,66 @@ export async function getShows(page: number = 0) {
     timeoutMs: 8000,
     cacheTtlMs: TVMAZE_SHOWS_PAGE_TTL_MS,
   });
+}
+
+// Windowed pagination across multiple TVMaze /shows?page=N pages.
+// - page: frontend page (0-based) -> 0 = first 20, 1 = next 20, etc.
+// - limit: how many shows per frontend page (default 20)
+export async function getShowsWindow(
+  page: number = 0,
+  limit: number = 20
+): Promise<PagedShowsResult> {
+  const safePage = !Number.isFinite(page) || page < 0 ? 0 : Math.floor(page);
+  const safeLimit =
+    !Number.isFinite(limit) || limit <= 0 ? 20 : Math.floor(limit);
+
+  const startIndex = safePage * safeLimit; // global offset
+  const items: TVMazeShow[] = [];
+
+  let remainingToSkip = startIndex;
+  let upstreamPageIndex = 0;
+  let scannedPages = 0;
+  const MAX_UPSTREAM_PAGES = 50; // safety guard
+
+  while (items.length < safeLimit && scannedPages < MAX_UPSTREAM_PAGES) {
+    const upstreamShows = await getShows(upstreamPageIndex);
+    scannedPages++;
+
+    // No more data from TVMaze → stop
+    if (!upstreamShows.length) break;
+
+    let from = 0;
+
+    // Skip initial shows until we reach 'startIndex'
+    if (remainingToSkip > 0) {
+      if (remainingToSkip >= upstreamShows.length) {
+        // skip whole page
+        remainingToSkip -= upstreamShows.length;
+        upstreamPageIndex++;
+        continue;
+      } else {
+        // skip part of this page
+        from = remainingToSkip;
+        remainingToSkip = 0;
+      }
+    }
+
+    const remainingInPage = upstreamShows.length - from;
+    const remainingNeeded = safeLimit - items.length;
+    const take = Math.min(remainingInPage, remainingNeeded);
+
+    if (take > 0) {
+      items.push(...upstreamShows.slice(from, from + take));
+    }
+
+    upstreamPageIndex++;
+  }
+
+  return {
+    page: safePage,
+    count: items.length,
+    items,
+  };
 }
 
 export async function getShowById(
