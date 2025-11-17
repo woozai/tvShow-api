@@ -72,9 +72,17 @@ export function ShowCard({ show }: Props) {
                 loading="lazy"
               />
             ) : (
-              <div className="absolute inset-0 flex flex-col items-start justify-start p-2 text-zinc-500 dark:text-zinc-400">
-                <span className="text-4xl">📺</span>
-                <span className="text-sm">No Image Available</span>
+              <div
+                className="
+                  absolute inset-0
+                  flex items-center justify-center
+                  text-zinc-500 dark:text-zinc-400
+                "
+                aria-label="No image available"
+              >
+                <span className="text-4xl" aria-hidden="true">
+                  📺
+                </span>
               </div>
             )}
           </div>
