@@ -7,6 +7,8 @@ import type { FilterParams } from "../../types/filterParams";
 import { getFilteredShows } from "../../api/filtered";
 import { ShowCardPlaceholder } from "../components/showCard/ShowCardPlaceholder";
 import { FilterModal } from "../components/filters/FilterModal";
+import { Pagination } from "../components/pagination";
+import { useSearchParams } from "react-router-dom";
 
 const PAGE_SIZE = 20;
 
@@ -43,9 +45,6 @@ export function HomePage() {
       params.rating_gte
   );
 
-  const isFirstPage = page === 0;
-  const isLastPage = pageCount < PAGE_SIZE; // backend returned less than 20 → end
-
   // 🔹 Single effect: load data whenever page / filters change
   useEffect(() => {
     let cancelled = false;
@@ -59,7 +58,7 @@ export function HomePage() {
           const data = await getPopularShows(page, PAGE_SIZE);
           if (cancelled) return;
           setShows(data.items);
-          setPageCount(data.count ?? data.items.length);
+          setPageCount(data.items.length);
         } else {
           // Filtered shows
           const res = await getFilteredShows({
@@ -69,7 +68,7 @@ export function HomePage() {
           });
           if (cancelled) return;
           setShows(res.items);
-          setPageCount(res.count ?? res.items.length);
+          setPageCount(res.items.length);
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -177,27 +176,13 @@ export function HomePage() {
       </div>
 
       {/* Pagination controls */}
-      <div className="mt-4 flex items-center justify-center gap-4">
-        <button
-          type="button"
-          disabled={isFirstPage || loading}
-          onClick={() => setPage((p) => Math.max(0, p - 1))}
-          className="rounded-md border border-white/10 px-3 py-1.5 text-sm disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          Previous
-        </button>
-
-        <span className="text-sm opacity-80">Page {page + 1}</span>
-
-        <button
-          type="button"
-          disabled={isLastPage || loading}
-          onClick={() => setPage((p) => p + 1)}
-          className="rounded-md border border-white/10 px-3 py-1.5 text-sm disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          Next
-        </button>
-      </div>
+      <Pagination
+        page={page}
+        pageSize={PAGE_SIZE}
+        itemsCount={pageCount}
+        loading={loading}
+        onPageChange={setPage}
+      />
 
       {/* Filter modal */}
       <FilterModal

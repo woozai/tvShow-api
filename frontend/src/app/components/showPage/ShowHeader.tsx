@@ -15,6 +15,7 @@ interface Props {
 
 export function ShowHeader({ show }: Props) {
   const [copied, setCopied] = useState(false);
+  const imageUrl = show.image?.original ?? show.image?.medium ?? null;
   const { isFav, toggle } = useFavorites();
   const fav = isFav(show.id);
   const handleCopy = () => {
@@ -26,14 +27,32 @@ export function ShowHeader({ show }: Props) {
 
   return (
     <div className="flex gap-6">
-      {show.image?.medium && (
-        <img
-          src={show.image.medium}
-          alt={show.name}
-          className="w-40 h-56 object-cover rounded-lg"
-          loading="lazy"
-        />
-      )}
+      <div className="w-48 h-72 rounded-lg overflow-hidden">
+        {show.image?.medium ? (
+          <img
+            src={show.image.medium}
+            alt={show.name}
+            className="w-full h-full object-cover rounded-lg"
+            loading="lazy"
+          />
+        ) : (
+          <div
+            className="
+              w-full h-full 
+              flex items-center justify-center
+              rounded-lg
+              border border-zinc-200 dark:border-zinc-700 
+              bg-zinc-100 dark:bg-[#151922]
+              text-zinc-500 dark:text-zinc-400
+            "
+            aria-label="No image available"
+          >
+            <span className="text-4xl" aria-hidden="true">
+              📺
+            </span>
+          </div>
+        )}
+      </div>
 
       <div className="flex-1">
         {/* Title Row */}
