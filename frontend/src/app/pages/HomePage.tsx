@@ -5,7 +5,7 @@ import { getPopularShows } from "../../api/shows";
 import { FilterButton } from "../components/filters/FilterButton";
 import type { FilterParams } from "../../types/filterParams";
 import { getFilteredShows } from "../../api/filtered";
-import { ShowCardPlaceholder } from "../components/showCard/ShowCardPlaceHolder";
+import { ShowCardPlaceholder } from "../components/showCard/ShowCardPlaceholder";
 import { FilterModal } from "../components/filters/FilterModal";
 
 export function HomePage() {
