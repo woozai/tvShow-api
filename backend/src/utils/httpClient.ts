@@ -1,4 +1,5 @@
 import env from "../config/env";
+import { cache } from "./cache";
 
 /** Shape for query params */
 type Query = Record<
@@ -81,11 +82,20 @@ export async function httpGet<T>(
   options?: {
     params?: Query;
     timeoutMs?: number;
+    cacheTtlMs?: number;
   }
 ): Promise<T> {
-  const { params, timeoutMs = 8000 } = options || {};
+  const { params, timeoutMs = 8000, cacheTtlMs } = options || {};
 
   const url = buildUrl(path, params);
+  // Cache lookup BEFORE creating controller/fetch
+  if (cacheTtlMs !== undefined) {
+    const cachedResponse = cache.get<T>(url);
+    if (cachedResponse !== undefined) {
+      console.log(`[httpClient] cache HIT → ${url}`);
+      return cachedResponse;
+    }
+  }
 
   // Timeout controller
   const controller = new AbortController();
@@ -111,6 +121,12 @@ export async function httpGet<T>(
             `Request failed with status ${res.status}`;
 
       throw new HttpError(res.status, message, url, body);
+    }
+
+    // store successful response in cache (if TTL provided)
+    if (cacheTtlMs !== undefined) {
+      console.log(`[httpClient] cache SET → ${url} (TTL ${cacheTtlMs}ms)`);
+      cache.set<T>(url, body as T, cacheTtlMs);
     }
 
     // Successful → return parsed body as T
