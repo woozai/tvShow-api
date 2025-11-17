@@ -1,10 +1,6 @@
 import { TVMazeEpisode, TVMazeSeason, TVMazeShow } from "../types/api";
 import { FilterParams } from "../types/filters";
-import {
-  applyShowsFilters,
-  applyShowsLimit,
-  applyShowsSort,
-} from "../utils/filters";
+import { applyShowsFilters, applyShowsSort } from "../utils/filters";
 import { httpGet } from "../utils/httpClient";
 import { searchShows } from "./search.service";
 
@@ -13,7 +9,14 @@ const TVMAZE_SHOWS_PAGE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 const TVMAZE_SHOW_DETAILS_TTL_MS = 30 * 60 * 1000; // 30 minutes
 const TVMAZE_EPISODES_BY_SHOW_TTL_MS = 45 * 60 * 1000; // 45 minutes
 const TVMAZE_EPISODES_BY_SEASON_TTL_MS = 45 * 60 * 1000; // 45 minutes
-const MAX_FILTER_SCAN_UPSTREAM_PAGES = 19;
+
+const MAX_FILTER_SCAN_UPSTREAM_PAGES = 50;
+
+export interface FilteredShowsResult {
+  page: number;
+  count: number; // total matches in THIS batch
+  items: TVMazeShow[]; // up to `limit` items
+}
 
 export interface FilterPagination {
   page: number;
@@ -82,45 +85,63 @@ export async function getEpisodesBySeasonId(seasonId: number) {
 
 export async function getFilteredShows(
   params: FilterParams
-): Promise<TVMazeShow[]> {
-  const limit = params.limit ?? 20;
+): Promise<FilteredShowsResult> {
+  console.log("[getFilteredShows] params.genres =", params.genres);
 
-  const collectedShows: TVMazeShow[] = [];
-  let upstreamPageIndex = 0;
-  let hasMoreUpstream = true;
+  const { page, limit, offset } = getFilterPagination(params);
 
-  // -----------------------------------------------------
-  // SAFETY LIMIT → do NOT fetch more than 30 TVMaze pages
-  // -----------------------------------------------------
-  while (
-    collectedShows.length < limit &&
-    hasMoreUpstream &&
-    upstreamPageIndex < MAX_FILTER_SCAN_UPSTREAM_PAGES
-  ) {
-    // Cached fetch thanks to getShows() TTL
-    const upstreamShows = await getShows(upstreamPageIndex);
+  const allMatches: TVMazeShow[] = [];
 
-    if (upstreamShows.length === 0) {
-      // No more TVMaze pages
-      hasMoreUpstream = false;
-      break;
+  // 1) Search mode: use TVMaze search API (usually small result set)
+  if (params.q && params.q.trim()) {
+    const searchResults = await searchShows(params.q.trim());
+    const candidates = searchResults.map(({ show }) => show);
+
+    const filtered = applyShowsFilters(candidates, params);
+    const sorted = applyShowsSort(
+      filtered,
+      params.sort,
+      params.order ?? "desc"
+    );
+
+    allMatches.push(...sorted);
+  } else {
+    // 2) Regular filtered mode: scan /shows?page=N using cached getShows()
+    let upstreamPageIndex = 0;
+    let hasMoreUpstream = true;
+
+    while (
+      hasMoreUpstream &&
+      upstreamPageIndex < MAX_FILTER_SCAN_UPSTREAM_PAGES
+    ) {
+      const upstreamShows = await getShows(upstreamPageIndex);
+
+      if (!upstreamShows.length) {
+        hasMoreUpstream = false;
+        break;
+      }
+
+      const filteredOnPage = applyShowsFilters(upstreamShows, params);
+      if (filteredOnPage.length) {
+        allMatches.push(...filteredOnPage);
+      }
+
+      upstreamPageIndex++;
     }
 
-    // Apply your existing filter logic
-    const filteredOnPage = applyShowsFilters(upstreamShows, params);
-
-    collectedShows.push(...filteredOnPage);
-
-    upstreamPageIndex++;
+    if (allMatches.length) {
+      const sorted = applyShowsSort(
+        allMatches,
+        params.sort,
+        params.order ?? "desc"
+      );
+      allMatches.length = 0;
+      allMatches.push(...sorted);
+    }
   }
 
-  // Final sort & slicing
-  const sortedShows = applyShowsSort(
-    collectedShows,
-    params.sort,
-    params.order ?? "desc"
-  );
+  const total = allMatches.length;
+  const items = allMatches.slice(offset, offset + limit);
 
-  // Return only up to limit
-  return applyShowsLimit(sortedShows, limit);
+  return { page, count: total, items };
 }

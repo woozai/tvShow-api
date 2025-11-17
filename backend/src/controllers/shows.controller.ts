@@ -124,8 +124,8 @@ export async function listShowsWithFilters(
     if (typeof limit === "number") p.limit = limit;
     if (language) p.language = language;
 
-    const items = await getFilteredShows(p);
-    res.json({ count: items.length, items });
+    const result = await getFilteredShows(p);
+    res.json(result);
   } catch (err) {
     next(err);
   }
