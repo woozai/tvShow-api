@@ -12,12 +12,18 @@ export async function listShows(
   next: NextFunction
 ) {
   try {
-    const page = Number(req.query.page ?? 0);
-    if (Number.isNaN(page) || page < 0) {
+    const rawPage = Number(req.query.page ?? 0);
+    if (Number.isNaN(rawPage) || rawPage < 0) {
       return next(new ApiError(400, "'page' must be a non-negative number"));
     }
-    const shows = await showService.getShows(page);
-    res.json({ page, count: shows.length, items: shows });
+
+    // Fixed page size 20 for frontend (can be made configurable via ?limit=… if you want)
+    const limit = 20;
+
+    const result = await showService.getShowsWindow(rawPage, limit);
+
+    // result already has { page, count, items }
+    res.json(result);
   } catch (err) {
     next(err);
   }
@@ -103,23 +109,23 @@ export async function listShowsWithFilters(
     const yearMin = qn(req.query.year_min);
     const yearMax = qn(req.query.year_max);
     const status = qs(req.query.status);
-    const sort = qenum<SortKey>(req.query.sort, [
-      "rating",
-      "name",
-      "premiered",
-    ] as const);
+    const sort =
+      qenum<SortKey>(req.query.sort, [
+        "rating",
+        "name",
+        "premiered",
+      ] as const) ?? "rating";
     const order = qorder(req.query.order) ?? "desc";
-    const page = qn(req.query.page);
-    const limit = qn(req.query.limit);
+    const page = qn(req.query.page) ?? 0;
+    const limit = qn(req.query.limit) ?? 20;
 
-    const p: FilterParams = { order };
+    const p: FilterParams = { order, sort, page, limit };
     if (q) p.q = q;
     if (genresArr.length) p.genres = genresArr;
     if (typeof ratingGte === "number") p.rating_gte = ratingGte;
     if (typeof yearMin === "number") p.year_min = yearMin;
     if (typeof yearMax === "number") p.year_max = yearMax;
     if (status) p.status = status;
-    if (sort) p.sort = sort;
     if (typeof page === "number") p.page = page;
     if (typeof limit === "number") p.limit = limit;
     if (language) p.language = language;

@@ -3,7 +3,7 @@ import type { Show } from "../../types/show";
 import { getShowWithSeasonsAndCast } from "../../api/shows";
 import { useFavorites } from "../../hooks/useFavorites";
 import { ShowCard } from "../components/showCard/ShowCard";
-import { ShowCardPlaceholder } from "../components/showCard/ShowCardPlaceHolder";
+import { ShowCardPlaceholder } from "../components/showCard/ShowCardPlaceholder";
 
 export function FavoritesPage() {
   const { favorites } = useFavorites(); // array of show IDs

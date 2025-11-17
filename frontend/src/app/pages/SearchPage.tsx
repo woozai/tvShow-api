@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { searchShows } from "../../api/search";
 import { ShowCard } from "../components/showCard/ShowCard";
-import { ShowCardPlaceholder } from "../components/showCard/ShowCardPlaceHolder";
+import { ShowCardPlaceholder } from "../components/showCard/ShowCardPlaceholder";
 import type { SearchResult } from "../../types/saerchResults";
 
 export function SearchPage() {
