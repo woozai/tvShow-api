@@ -1,4 +1,4 @@
-import { TVMazeEpisode, TVMazeSeason, TVMazeShow } from "../types/api";
+import { TVMazeEpisode, TVMazeShow } from "../types/api";
 import { FilterParams } from "../types/filters";
 import { applyShowsFilters, applyShowsSort } from "../utils/filters";
 import { httpGet } from "../utils/httpClient";
@@ -10,7 +10,7 @@ const TVMAZE_SHOW_DETAILS_TTL_MS = 30 * 60 * 1000; // 30 minutes
 const TVMAZE_EPISODES_BY_SHOW_TTL_MS = 45 * 60 * 1000; // 45 minutes
 const TVMAZE_EPISODES_BY_SEASON_TTL_MS = 45 * 60 * 1000; // 45 minutes
 
-const MAX_FILTER_SCAN_UPSTREAM_PAGES = 50;
+const MAX_FILTER_SCAN_UPSTREAM_PAGES = 19;
 
 export interface FilteredShowsResult {
   page: number;
