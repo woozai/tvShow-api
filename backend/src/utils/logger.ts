@@ -13,6 +13,6 @@ export const logger = {
 
   warn: (msg: string) =>
     console.warn(`${colors.yellow}[WARN]${colors.reset} ${msg}`),
-   error: (msg: string) =>
+  error: (msg: string) =>
     console.error(`${colors.red}[ERROR]${colors.reset} ${msg}`),
 };
